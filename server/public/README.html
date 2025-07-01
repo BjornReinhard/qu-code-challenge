@@ -1,0 +1,67 @@
+<h1>Joke API Server</h1>
+<p>A backend implementation to support Qu Code Challenge frontend app.</p>
+<hr>
+<h2>Features</h2>
+<ul>
+<li>Fetches jokes from the <a href="https://official-joke-api.appspot.com/">official-joke-api</a></li>
+<li>Stores jokes in memory</li>
+<li>Enriches jokes with a <code>rating</code> property (scale: <code>0-3</code>)</li>
+<li>Full CRUD support:<ul>
+<li><code>GET</code> jokes</li>
+<li><code>POST</code> new jokes</li>
+<li><code>PUT</code> updates</li>
+<li><code>DELETE</code> single or all jokes</li>
+</ul>
+</li>
+<li><strong>MVC architecture</strong></li>
+</ul>
+<hr>
+
+<hr>
+<h2>API Endpoints</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/jokes</code></td>
+<td>Fetches all jokes (remote if empty)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/jokes</code></td>
+<td>Adds a new joke</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/jokes/:id</code></td>
+<td>Updates a joke by ID</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/jokes/:id</code></td>
+<td>Deletes a joke by ID</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/jokes</code></td>
+<td>Deletes all jokes</td>
+</tr>
+</tbody></table>
+<p>All jokes are enriched with a <code>rating</code> field of type <code>0 | 1 | 2 | 3</code>.</p>
+<hr>
+<h2>Example Payload</h2>
+<pre><code class="language-json">{
+  &quot;id&quot;: 101,
+  &quot;type&quot;: &quot;programming&quot;,
+  &quot;setup&quot;: &quot;Why do programmers prefer dark mode?&quot;,
+  &quot;punchline&quot;: &quot;Because light attracts bugs.&quot;,
+  &quot;rating&quot;: 2
+}
+</code></pre>
+
