@@ -2,7 +2,7 @@ import { Joke } from "../models/Joke";
 
 let jokes: Joke[] = [];
 
-export function getAllJokes(): Joke[] {
+export function getCachedJokes(): Joke[] {
   return jokes;
 }
 

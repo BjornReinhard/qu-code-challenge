@@ -1,0 +1,87 @@
+/*
+  A modern CSS reset by Andy Bell (https://piccalil.li/blog/a-modern-css-reset/)
+  Modified to include common additions and explanations.
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+}
+
+/* Remove default margin and padding */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+/* Set core body defaults */
+body {
+  min-height: 100vh; /* Ensures body takes at least the full viewport height */
+  line-height: 1.5; /* Improves readability */
+  -webkit-font-smoothing: antialiased; /* Improves font rendering on macOS/iOS */
+  text-rendering: optimizeLegibility; /* Prioritizes legibility over rendering speed */
+}
+
+/* Remove list styles on ul, ol elements with a class attribute */
+ul[class],
+ol[class] {
+  list-style: none;
+}
+
+/* A elements that don't have a class get a default color and no underline */
+a:not([class]) {
+  text-decoration-skip-ink: auto; /* Aims to prevent text decoration from "cutting through" descenders */
+}
+
+/* Make images easier to work with */
+img,
+picture,
+video,
+canvas,
+svg {
+  max-width: 100%; /* Ensures images and media are responsive */
+  display: block; /* Removes extra space below images */
+}
+
+/* Inherit fonts for form controls */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Avoid text overflows */
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word; /* Allows long words to break and wrap to the next line */
+}
+
+/* Create a root stacking context */
+#root,
+#__next {
+  isolation: isolate; /* Can help prevent z-index issues in some component-based frameworks */
+}
+
+/* Optional: Additional opinionated defaults */
+
+/* Remove outlines for mouse users, but keep for keyboard users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Improve button cursor */
+button {
+  cursor: pointer;
+}

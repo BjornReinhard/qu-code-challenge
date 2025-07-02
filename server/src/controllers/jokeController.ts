@@ -3,46 +3,110 @@ import {
   addJoke,
   clearJokes,
   deleteJoke,
-  getAllJokes,
+  getCachedJokes,
   setJokes,
   updateJoke,
 } from "../services/jokesService";
 import { enrichJoke, enrichJokes } from "../utils/enrichJoke";
 
 /**
- * GET /api/jokes
+ * GET /api/jokes/:count?
  *
- * Retrieves all jokes from memory. If no jokes are loaded yet,
- * it fetches them from the external Joke API and stores them locally (in memory).
+ * Retrieves a specified number of jokes from memory or fetches more from the external API as needed.
+ * - If the current cached jokes are fewer than requested, it fetches only the missing amount.
+ * - If the cached jokes are more than needed, it trims the array.
+ * - If the cache is enough and matches the count, returns cached jokes.
  *
- * @param req - Express request object (supports optional ?count query param)
+ * @param req - Express request object
  * @param res - Express response object
- * @returns 200 with a joke array or 500 if fetch fails
+ * @returns {void} Sends 200 response with a joke array or 500 on external API failure
  */
 export async function getJokes(req: Request, res: Response): Promise<void> {
   const count = parseInt(
-    (req.query.count as string) || process.env.DEFAULT_JOKES_NUMBER || "10",
+    req.params.count || process.env.DEFAULT_JOKES_NUMBER || "10",
   );
-  const cachedJokes = getAllJokes();
-
-  const shouldFetch = cachedJokes.length === 0 || cachedJokes.length !== count;
-  if (!shouldFetch) {
-    res.status(200).json(cachedJokes);
-    return;
-  }
+  let jokes = getCachedJokes();
 
   try {
-    const response = await fetch(
-      `${process.env.JOKE_API_BASE_URL}/jokes/random/${count}`,
-    );
-    const fetched = await response.json();
-    const enriched = enrichJokes(fetched);
-    setJokes(enriched);
-    res.status(200).json(enriched);
+    if (jokes.length < count) {
+      const needed = count - jokes.length;
+
+      const response = await fetch(
+        `${process.env.JOKE_API_BASE_URL}/jokes/random/${needed}`,
+      );
+      const fetched = await response.json();
+      const enriched = enrichJokes(fetched);
+
+      const existingIds = new Set(jokes.map((j) => j.id));
+      const newUniqueJokes = enriched.filter(
+        (joke) => !existingIds.has(joke.id),
+      );
+
+      jokes = [...jokes, ...newUniqueJokes];
+      setJokes(jokes);
+    } else if (jokes.length > count) {
+      jokes = jokes.slice(0, count);
+      setJokes(jokes);
+    }
+
+    res.status(200).json(jokes);
   } catch (error) {
     console.error("Error fetching jokes:", error);
     res.status(500).json({ error: "Failed to fetch jokes from external API" });
   }
+}
+
+/**
+ * GET /api/jokes/random
+ *
+ * Fetches one random joke and adds it to the cache if not already present.
+ * Retries up to 10 times to get a unique joke by ID.
+ *
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export async function loadRandomJoke(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const jokes = getCachedJokes();
+  const existingIds = new Set(jokes.map((j) => j.id));
+
+  const maxAttempts = 10;
+  let attempt = 0;
+  let uniqueJoke = null;
+
+  while (attempt < maxAttempts) {
+    try {
+      const response = await fetch(
+        `${process.env.JOKE_API_BASE_URL}/jokes/random/1`,
+      );
+      const fetched = await response.json();
+      const enriched = enrichJoke(fetched[0]);
+
+      if (!existingIds.has(enriched.id)) {
+        uniqueJoke = enriched;
+        break;
+      }
+
+      attempt++;
+    } catch (error) {
+      console.error("Error fetching joke:", error);
+      res.status(500).json({ error: "Failed to fetch joke from external API" });
+      return;
+    }
+  }
+
+  if (!uniqueJoke) {
+    res
+      .status(409)
+      .json({ error: "Could not fetch a unique joke after multiple attempts" });
+    return;
+  }
+
+  const updatedJokes = [...jokes, uniqueJoke];
+  setJokes(updatedJokes);
+  res.status(201).json(uniqueJoke);
 }
 
 /**
@@ -110,11 +174,41 @@ export function deleteJokeById(req: Request, res: Response) {
  *
  * Clears all jokes from memory.
  *
- * @param _req - Express request object (unused)
+ * @param req - Express request object
  * @param res - Express response object
  * @returns 204 No Content
  */
-export function deleteAllJokes(_req: Request, res: Response): void {
+export function deleteAllJokes(req: Request, res: Response): void {
   clearJokes();
   res.status(204).end();
+}
+
+/**
+ * POST /api/jokes/reset/:count?
+ *
+ * Clears the current joke cache and loads fresh jokes from the external API.
+ * - Uses `count` param or `DEFAULT_JOKES_NUMBER` from env as the number of jokes to fetch.
+ * - Replaces the entire `cachedJokes` array.
+ *
+ * @param req - Express request object
+ * @param res - Express response object
+ * @returns {void} 200 with newly loaded jokes or 500 on failure
+ */
+export async function resetJokes(req: Request, res: Response): Promise<void> {
+  const count = parseInt(
+    req.params.count || process.env.DEFAULT_JOKES_NUMBER || "10",
+  );
+
+  try {
+    const response = await fetch(
+      `${process.env.JOKE_API_BASE_URL}/jokes/random/${count}`,
+    );
+    const fetched = await response.json();
+    const enriched = enrichJokes(fetched);
+    setJokes(enriched);
+    res.status(200).json(enriched);
+  } catch (error) {
+    console.error("Failed to reset jokes:", error);
+    res.status(500).json({ error: "Failed to reset jokes from external API" });
+  }
 }

@@ -1,0 +1,48 @@
+:root {
+  --color-white: #fff;
+  --color-black: #090909;
+  --color-gray-100: #f8f8f8;
+  --color-gray-200: #f5f6f8;
+  --color-gray-300: #ddd;
+  --color-gray-400: #ccc;
+  --color-gray-500: #99a1a8;
+  --color-gray-600: #888;
+  --color-gray-700: #333;
+  --color-shadow-1: rgba(0, 0, 0, 0.06);
+  --color-shadow-2: rgba(0, 0, 0, 0.03);
+  --color-shadow-3: rgba(0, 0, 0, 0.04);
+
+  --font-family-base: "Source Sans 3", sans-serif;
+  --font-size-base: 100%;
+  --font-weight-base: 400;
+  --font-weight-medium: 500;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.3rem;
+  --space-md: 0.5rem;
+  --space-lg: 1rem;
+  --space-xl: 2rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+
+  --shadow-elevation: 0 0.125rem 0.25rem var(--color-shadow-2), 0 0.5rem 1rem var(--color-shadow-3);
+  --shadow-inset: inset 0 0 0 0.0625rem var(--color-shadow-1);
+
+  --bg-app: var(--color-gray-200);
+  --bg-surface: var(--color-white);
+  --bg-header-footer: var(--color-gray-100);
+  --text-primary: var(--color-black);
+  --text-secondary: var(--color-gray-500);
+  --text-inverse: var(--color-white);
+  --border-default: var(--color-gray-300);
+  --border-strong: var(--color-gray-400);
+  --shadow-default: var(--shadow-inset), var(--shadow-elevation);
+}
+
+body {
+  background-color: var(--bg-app);
+  font-family: var(--font-family-base);
+  font-optical-sizing: auto;
+  font-size: var(--font-size-base);
+}
