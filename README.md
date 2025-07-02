@@ -2,6 +2,9 @@
 
 This is a full-stack web application for displaying, rating, and managing jokes.
 
+![Qu Code Challenge 2025-07-02 03-04-00](https://github.com/user-attachments/assets/6f111afd-a763-45f9-a10a-69d6198c44df)
+
+
 ## Quick Start
 
 1. **Start the backend server first:**
