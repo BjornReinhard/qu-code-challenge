@@ -73,15 +73,20 @@ JOKE_API_BASE_URL=https://official-joke-api.appspot.com
 
 ## API Endpoints
 
-| Method | Route               | Description                     |
-|--------|---------------------|---------------------------------|
-| GET    | `/api/jokes`        | Fetches all jokes (remote if empty) |
-| POST   | `/api/jokes`        | Adds a new joke                 |
-| PUT    | `/api/jokes/:id`    | Updates a joke by ID            |
-| DELETE | `/api/jokes/:id`    | Deletes a joke by ID            |
-| DELETE | `/api/jokes`        | Deletes all jokes               |
+All endpoints are prefixed with `/api/jokes`.
 
-All jokes are enriched with a `rating` field of type `0 | 1 | 2 | 3`.
+| Method | Route                   | Description                                                      |
+|--------|------------------------|------------------------------------------------------------------|
+| GET    | `/api/jokes/:count?`   | Fetches a specified number of jokes (default if not provided).    |
+| GET    | `/api/jokes/random`    | Fetches one random joke and adds it to the cache if unique.       |
+| POST   | `/api/jokes`           | Adds a new joke to memory.                                       |
+| PUT    | `/api/jokes/:id`       | Updates a joke by ID.                                            |
+| DELETE | `/api/jokes/:id`       | Deletes a joke by ID.                                            |
+| DELETE | `/api/jokes`           | Deletes all jokes from memory.                                   |
+| POST   | `/api/jokes/reset/:count?` | Clears the cache and loads fresh jokes (count or default).   |
+
+- All jokes are enriched with a `rating` field of type `0 | 1 | 2 | 3`.
+- Jokes are stored in memory (not persisted).
 
 ---
 
