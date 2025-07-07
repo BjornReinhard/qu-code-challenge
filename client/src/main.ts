@@ -1,6 +1,6 @@
 import 'ant-design-vue/dist/reset.css';
-import './assets/main.css';
 import { Button, Input, Select } from 'ant-design-vue';
+import './assets/main.css';
 import { createPinia } from 'pinia';
 
 import { createApp } from 'vue';

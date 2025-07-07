@@ -46,3 +46,7 @@ body {
   font-optical-sizing: auto;
   font-size: var(--font-size-base);
 }
+
+ul {
+  padding: 0;
+}

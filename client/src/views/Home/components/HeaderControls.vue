@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import QuButton from '@/components/Button.vue';
+import AddIcon from '@/components/icons/AddIcon.vue';
+import LoadIcon from '@/components/icons/LoadIcon.vue';
+import RefreshIcon from '@/components/icons/RefreshIcon.vue';
 import SortingOrderIcon from '@/components/icons/SortingOrderIcon.vue';
 import { usePaginationStore } from '@/stores/usePaginationStore.ts';
 import { isNumericString } from '@/utils/number.utils.ts';
@@ -14,12 +18,11 @@ const jokesStore = useJokesStore();
 
 const jokesPerPageToSelect = [5, 10, 20, 100];
 const jokesNumberToLoad = ref(jokesStore.jokesNumber);
+const jokesNumberInput = ref<string>(String(jokesStore.jokesNumber));
 
 const handleJokesNumberChange = async (value: number) => {
   await jokesStore.loadJokes(value);
 };
-
-const jokesNumberInput = ref<string>(String(jokesStore.jokesNumber));
 
 const onJokesNumberInput = (e: Event) => {
   const target = e.target as HTMLInputElement;
@@ -41,14 +44,22 @@ const isLoadJokesDisabled = () => {
 
 <template>
   <nav :class="$style.container" aria-label="Joke controls">
-    <div style="display: flex; align-items: center; gap: 1rem">
-      <AButton type="primary" @click="jokesStore.loadJoke()">Add joke</AButton>
-      <AButton type="primary" danger @click="jokesStore.resetJokes(jokesStore.jokesNumber)"
-        >Reset jokes</AButton
-      >
+    <div :class="$style.controlsBlock">
+      <QuButton type="primary" @click="jokesStore.loadJoke()">
+        <template #icon>
+          <AddIcon :class="$style.icon" />
+        </template>
+        Add a joke
+      </QuButton>
+      <QuButton type="primary" danger @click="jokesStore.resetJokes(jokesStore.jokesNumber)">
+        <template #icon>
+          <RefreshIcon :class="$style.icon" />
+        </template>
+        Reset jokes
+      </QuButton>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 1rem">
+    <div :class="$style.controlsBlock">
       <label for="jokesToLoadInput">Jokes to load:</label>
       <AInput
         v-model:value="jokesNumberInput"
@@ -56,22 +67,26 @@ const isLoadJokesDisabled = () => {
         @input="onJokesNumberInput"
         @keydown.enter="handleJokesNumberChange(jokesNumberToLoad)"
         placeholder="Up to 250"
-        style="width: 7.5rem"
+        :class="$style.jokesToLoad"
         id="jokesToLoadInput"
       />
-      <AButton
+      <QuButton
         type="primary"
         @click="handleJokesNumberChange(jokesNumberToLoad)"
         :disabled="isLoadJokesDisabled()"
-        >Load jokes</AButton
       >
+        <template #icon>
+          <LoadIcon :class="$style.icon" />
+        </template>
+        Load jokes
+      </QuButton>
     </div>
-    <div style="display: flex; align-items: center; gap: 1rem">
+    <div :class="$style.controlsBlock">
       <label for="jokesPerPageSelect">Jokes per page:</label>
       <ASelect
         ref="select"
         v-model:value="paginationStore.pageSize"
-        style="width: 7.5rem"
+        :class="$style.jokesPerPage"
         id="jokesPerPageSelect"
         aria-label="Jokes per page"
       >
@@ -83,17 +98,19 @@ const isLoadJokesDisabled = () => {
           {{ jokesPerPage }}
         </ASelectOption>
       </ASelect>
-      <div style="display: flex; align-items: center; gap: 0.5rem">
-        <SortingOrderIcon :class="$style.sortingIcon" />
-        <span id="sortByTypeLabel">Sort by joke type:</span>
-      </div>
+    </div>
+    <div :class="$style.controlsBlock">
+      <span id="sortByTypeLabel">Sort by joke type:</span>
       <ASelect
         ref="select"
         v-model:value="jokesStore.sortingDirection"
         @change="jokesStore.toggleSorting"
-        style="width: 7.5rem"
+        :class="$style.sortingSelect"
         aria-labelledby="sortByTypeLabel"
       >
+        <template #suffixIcon>
+          <SortingOrderIcon :class="$style.sortingIcon" />
+        </template>
         <ASelectOption value="ASC">Asc</ASelectOption>
         <ASelectOption value="DESC">Desc</ASelectOption>
       </ASelect>
@@ -108,16 +125,42 @@ const isLoadJokesDisabled = () => {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  width: 80%;
-  min-height: 3.75rem;
+  width: 100%;
   gap: var(--space-lg);
+  padding: var(--space-lg);
+}
+
+.controlsBlock {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.jokesToLoad {
+  width: 4.5rem;
+}
+
+.jokesPerPage {
+  width: 5rem;
+}
+
+.sortingSelect {
+  width: 5.5rem;
+}
+
+@media (max-width: 43.75rem) {
+  .container {
+    width: 100%;
+  }
 }
 
 .sortingIcon:hover {
   cursor: pointer;
 }
 
-.containerWrap {
-  display: flex;
+.icon {
+  path {
+    fill: var(--color-white);
+  }
 }
 </style>
