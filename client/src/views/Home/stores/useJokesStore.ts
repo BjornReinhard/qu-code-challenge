@@ -156,6 +156,7 @@ export const useJokesStore = defineStore('useJokesStore', () => {
   };
 
   return {
+    jokes,
     loadJoke,
     removeJoke,
     removeJokes,
