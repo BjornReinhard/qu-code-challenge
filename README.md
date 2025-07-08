@@ -4,7 +4,14 @@ This is a full-stack web application for displaying, rating, and managing jokes.
 
 ## Deployed project: https://dstepanov.com/qu
 
-![Qu Code Challenge 2025-07-07 16-31-56](https://github.com/user-attachments/assets/3493b7c1-5238-4264-a1e6-56ea7ed5932b)
+![Qu Code Challenge](https://github.com/user-attachments/assets/3493b7c1-5238-4264-a1e6-56ea7ed5932b)
+
+## Unit tests with Coverage: https://dstepanov.com/qu/tests/#/
+
+![Vitest](https://github.com/user-attachments/assets/dd7a4e5e-05c1-4916-b97b-bb9b85cc5a60)
+
+![Vitest](https://github.com/user-attachments/assets/2c66cb72-f110-44d9-8953-20765da219c5)
+
 
 ## Quick Start
 
