@@ -127,14 +127,14 @@ describe('useJokesStore', () => {
   it('handles errors gracefully in async actions', async () => {
     vi.mocked(httpService.get).mockRejectedValue(new Error('Expected test error'));
     const store = useJokesStore();
-    await expect(store.loadJokes(1)).resolves.toBeUndefined();
-    await expect(store.loadJoke()).resolves.toBeUndefined();
+    await expect(store.loadJokes(1)).rejects.toThrow('Expected test error');
+    await expect(store.loadJoke()).rejects.toThrow('Expected test error');
     vi.mocked(httpService.delete).mockRejectedValue(new Error('Expected test error'));
-    await expect(store.removeJoke(1)).resolves.toBeUndefined();
-    await expect(store.removeJokes()).resolves.toBeUndefined();
+    await expect(store.removeJoke(1)).rejects.toThrow('Expected test error');
+    await expect(store.removeJokes()).rejects.toThrow('Expected test error');
     vi.mocked(httpService.put).mockRejectedValue(new Error('Expected test error'));
-    await expect(store.updateJokeRating(jokeA)).resolves.toBeUndefined();
+    await expect(store.updateJokeRating(jokeA)).rejects.toThrow('Expected test error');
     vi.mocked(httpService.post).mockRejectedValue(new Error('Expected test error'));
-    await expect(store.resetJokes(1)).resolves.toBeUndefined();
+    await expect(store.resetJokes(1)).rejects.toThrow('Expected test error');
   });
 });
