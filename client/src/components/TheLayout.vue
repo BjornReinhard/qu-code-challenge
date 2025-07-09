@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import QuScrollToTop from '@/components/ScrollToTop.vue';
+
 defineOptions({
   name: 'QuLayout',
 });
@@ -10,13 +12,14 @@ defineOptions({
       <slot name="header" />
     </header>
 
-    <main :class="$style.main" role="main">
+    <main :class="$style.main" role="main" id="main">
       <slot name="main" />
     </main>
 
     <footer :class="$style.footer">
       <slot name="footer" />
     </footer>
+    <QuScrollToTop targetSelector="#main" />
   </section>
 </template>
 
