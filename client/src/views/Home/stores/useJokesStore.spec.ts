@@ -103,10 +103,10 @@ describe('useJokesStore', () => {
     const store = useJokesStore();
     await store.loadJokes(2);
     store.sortingDirection = 'ASC';
-    store.toggleSorting();
+    await store.toggleSorting();
     expect(store.jokes[0].type).toBe('a');
     store.sortingDirection = 'DESC';
-    store.toggleSorting();
+    await store.toggleSorting();
     expect(store.jokes[0].type).toBe('b');
   });
 
