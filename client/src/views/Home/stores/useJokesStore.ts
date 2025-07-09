@@ -6,7 +6,7 @@ import { notifyError } from '@/utils/auxiliary.utils.ts';
 import { safeNumber } from '@/utils/number.utils.ts';
 import { useStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 export const useJokesStore = defineStore('useJokesStore', () => {
@@ -118,9 +118,12 @@ export const useJokesStore = defineStore('useJokesStore', () => {
     return result;
   };
 
-  const toggleSorting = () => {
+  const toggleSorting = async () => {
     if (jokes.value !== undefined) {
       jokesUpdating.value = true;
+      // Need for catching jokesUpdating.value updates for DOM, when we do sorting.
+      // Otherwise, this state toggling won't be noticed.
+      await nextTick();
       jokes.value = sortJokes(jokes.value);
       jokesUpdating.value = false;
     }
