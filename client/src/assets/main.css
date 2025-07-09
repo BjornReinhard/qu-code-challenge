@@ -45,6 +45,7 @@ body {
   font-family: var(--font-family-base);
   font-optical-sizing: auto;
   font-size: var(--font-size-base);
+  overflow: hidden;
 }
 
 ul {

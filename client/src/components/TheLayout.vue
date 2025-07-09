@@ -28,7 +28,6 @@ defineOptions({
   display: grid;
   grid-template-rows: auto 1fr 3.75rem;
   height: 100vh;
-  overflow: hidden;
 }
 
 .header,
@@ -45,6 +44,9 @@ defineOptions({
 
 .footer {
   height: 3.75rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .main {
