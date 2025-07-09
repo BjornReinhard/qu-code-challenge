@@ -1,6 +1,7 @@
 import 'ant-design-vue/dist/reset.css';
-import { Button, Input, Select } from 'ant-design-vue';
+import { Button, Input, Select, Tooltip } from 'ant-design-vue';
 import './assets/main.css';
+import 'vue3-toastify/dist/index.css';
 import { createPinia } from 'pinia';
 
 import { createApp } from 'vue';
@@ -15,5 +16,6 @@ app.use(router);
 app.use(Select);
 app.use(Input);
 app.use(Button);
+app.use(Tooltip);
 
 app.mount('#app');

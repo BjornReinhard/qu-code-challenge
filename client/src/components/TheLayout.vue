@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'QuAppLayout',
+  name: 'QuLayout',
 });
 </script>
 
@@ -50,5 +50,6 @@ defineOptions({
   overflow-y: auto;
   padding: var(--space-xl) var(--space-lg);
   background-color: var(--bg-surface);
+  scrollbar-gutter: stable;
 }
 </style>

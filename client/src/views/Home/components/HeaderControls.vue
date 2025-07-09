@@ -4,9 +4,11 @@ import AddIcon from '@/components/icons/AddIcon.vue';
 import LoadIcon from '@/components/icons/LoadIcon.vue';
 import RefreshIcon from '@/components/icons/RefreshIcon.vue';
 import SortingOrderIcon from '@/components/icons/SortingOrderIcon.vue';
+import { toastService } from '@/services/toast.service.ts';
 import { usePaginationStore } from '@/stores/usePaginationStore.ts';
 import { isNumericString } from '@/utils/number.utils.ts';
 import { useJokesStore } from '@/views/Home/stores/useJokesStore.ts';
+import { useAsyncState } from '@vueuse/core';
 import { ref } from 'vue';
 
 defineOptions({
@@ -19,10 +21,45 @@ const jokesStore = useJokesStore();
 const jokesPerPageToSelect = [5, 10, 20, 100];
 const jokesNumberToLoad = ref(jokesStore.jokesNumber);
 const jokesNumberInput = ref<string>(String(jokesStore.jokesNumber));
+const { isLoading: isJokesLoading, executeImmediate: loadJokes } = useAsyncState(
+  async (value) => await jokesStore.loadJokes(value),
+  undefined,
+  {
+    immediate: false,
+    onSuccess: () => toastService.success(`${jokesStore.jokes.length} jokes successfully loaded.`),
+  },
+);
+const { executeImmediate: addJoke, isLoading: isAddJokeLoading } = useAsyncState(
+  async () => {
+    return await jokesStore.loadJoke();
+  },
+  undefined,
+  {
+    immediate: false,
+    onSuccess: (addedJoke) => {
+      jokesNumberInput.value = String(jokesStore.jokesNumber);
+      toastService.success(
+        `A joke with id: ${addedJoke?.id} successfully added to the end of the grid.`,
+      );
+    },
+  },
+);
 
-const handleJokesNumberChange = async (value: number) => {
-  await jokesStore.loadJokes(value);
-};
+const {
+  state,
+  executeImmediate: resetJokes,
+  isReady,
+  isLoading: isJokesResetting,
+} = useAsyncState(
+  async () => {
+    await jokesStore.resetJokes(jokesStore.jokesNumber);
+    toastService.success(
+      `${jokesStore.jokes.length} fresh jokes successfully pulled from the external API!`,
+    );
+  },
+  undefined,
+  { immediate: false },
+);
 
 const onJokesNumberInput = (e: Event) => {
   const target = e.target as HTMLInputElement;
@@ -38,20 +75,35 @@ const onJokesNumberInput = (e: Event) => {
 };
 
 const isLoadJokesDisabled = () => {
-  return !isNumericString(jokesNumberInput.value);
+  return (
+    !isNumericString(jokesNumberInput.value) ||
+    isJokesLoading.value ||
+    Number(jokesNumberInput.value) === jokesStore.jokesNumber
+  );
 };
 </script>
 
 <template>
   <nav :class="$style.container" aria-label="Joke controls">
     <div :class="$style.controlsBlock">
-      <QuButton type="primary" @click="jokesStore.loadJoke()">
+      <QuButton
+        type="primary"
+        @click="addJoke"
+        :disabled="isAddJokeLoading"
+        tooltip="Add a new joke pulled from external API to the end of the grid"
+      >
         <template #icon>
           <AddIcon :class="$style.icon" />
         </template>
         Add a joke
       </QuButton>
-      <QuButton type="primary" danger @click="jokesStore.resetJokes(jokesStore.jokesNumber)">
+      <QuButton
+        type="primary"
+        danger
+        @click="resetJokes"
+        :disabled="isJokesResetting"
+        tooltip="Reset cached jokes array on the server and pulled fresh jokes from external API"
+      >
         <template #icon>
           <RefreshIcon :class="$style.icon" />
         </template>
@@ -60,20 +112,22 @@ const isLoadJokesDisabled = () => {
     </div>
 
     <div :class="$style.controlsBlock">
-      <label for="jokesToLoadInput">Jokes to load:</label>
+      <label for="jokesToLoadInput">Jokes number:</label>
       <AInput
         v-model:value="jokesNumberInput"
         :maxLength="3"
         @input="onJokesNumberInput"
-        @keydown.enter="handleJokesNumberChange(jokesNumberToLoad)"
+        @keydown.enter="loadJokes(jokesNumberToLoad)"
         placeholder="Up to 250"
         :class="$style.jokesToLoad"
         id="jokesToLoadInput"
       />
       <QuButton
         type="primary"
-        @click="handleJokesNumberChange(jokesNumberToLoad)"
+        :loading="isJokesLoading"
+        @click="loadJokes(jokesNumberToLoad)"
         :disabled="isLoadJokesDisabled()"
+        tooltip="Load needed number of jokes from the server. This number is cached in localStorage."
       >
         <template #icon>
           <LoadIcon :class="$style.icon" />
@@ -82,7 +136,11 @@ const isLoadJokesDisabled = () => {
       </QuButton>
     </div>
     <div :class="$style.controlsBlock">
-      <label for="jokesPerPageSelect">Jokes per page:</label>
+      <ATooltip
+        title="Number of jokes to display per one page. This number is cached in localStorage."
+      >
+        <label for="jokesPerPageSelect">Jokes per page:</label>
+      </ATooltip>
       <ASelect
         ref="select"
         v-model:value="paginationStore.pageSize"
@@ -100,7 +158,9 @@ const isLoadJokesDisabled = () => {
       </ASelect>
     </div>
     <div :class="$style.controlsBlock">
-      <span id="sortByTypeLabel">Sort by joke type:</span>
+      <ATooltip title="Sort jokes by their type.">
+        <span id="sortByTypeLabel">Sort jokes:</span>
+      </ATooltip>
       <ASelect
         ref="select"
         v-model:value="jokesStore.sortingDirection"

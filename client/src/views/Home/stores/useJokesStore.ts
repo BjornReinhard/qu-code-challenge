@@ -2,6 +2,7 @@ import type { Joke } from '@/models/Joke.ts';
 import { envService } from '@/services/env.service.ts';
 import { httpService } from '@/services/http.service.ts';
 import { usePaginationStore } from '@/stores/usePaginationStore.ts';
+import { notifyError } from '@/utils/auxiliary.utils.ts';
 import { safeNumber } from '@/utils/number.utils.ts';
 import { useStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
@@ -13,6 +14,7 @@ export const useJokesStore = defineStore('useJokesStore', () => {
   const paginationStore = usePaginationStore();
   const jokes = ref<Joke[]>([]);
   const jokesPerPage = ref<Joke[]>([]);
+  const jokesUpdating = ref(false);
   const jokesNumber = useStorage(
     'jokesNumber',
     envService.TOTAL_JOKES_NUMBER ? parseInt(envService.TOTAL_JOKES_NUMBER as string) : 10,
@@ -31,34 +33,42 @@ export const useJokesStore = defineStore('useJokesStore', () => {
   );
 
   const loadJokes = async (value?: number): Promise<void> => {
+    jokesUpdating.value = true;
+    jokesNumber.value = value ?? jokesNumber.value;
+
     try {
-      jokesNumber.value = value ?? jokesNumber.value;
       jokes.value = await httpService.get<Joke[]>(`/${jokesNumber.value}`);
     } catch (error) {
-      console.error(error);
+      notifyError(`Couldn't load jokes.`, error);
+      throw error;
+    } finally {
+      jokesUpdating.value = false;
     }
   };
 
-  const loadJoke = async (): Promise<void> => {
+  const loadJoke = async (): Promise<Joke | undefined> => {
+    let result;
     try {
-      const result = await httpService.get<Joke>(`/random`);
+      result = await httpService.get<Joke>(`/random`);
       jokes.value = [...jokes.value, result];
     } catch (error: any) {
       switch (error.status) {
         case 404:
-          console.error('Joke not found');
+          notifyError('Joke not found', error);
           break;
         case 409:
-          console.error("Couldn't fetch a unique joke. Try again.");
+          notifyError("Couldn't fetch a unique joke. Try again.", error);
           break;
         case 500:
-          console.error('Server error. Please try later.');
+          notifyError('Server error. Please try later.', error);
           break;
         default:
-          console.error(error.message || 'Unexpected error occurred');
+          notifyError(error.message || 'Unexpected error occurred', error);
           break;
       }
+      throw error;
     }
+    return result;
   };
 
   watch(
@@ -110,7 +120,9 @@ export const useJokesStore = defineStore('useJokesStore', () => {
 
   const toggleSorting = () => {
     if (jokes.value !== undefined) {
+      jokesUpdating.value = true;
       jokes.value = sortJokes(jokes.value);
+      jokesUpdating.value = false;
     }
   };
 
@@ -126,7 +138,8 @@ export const useJokesStore = defineStore('useJokesStore', () => {
       await httpService.delete(`/`);
       jokes.value = [];
     } catch (error) {
-      console.error(error);
+      notifyError(`Couldn't remove jokes.`, error);
+      throw error;
     }
   };
 
@@ -135,7 +148,8 @@ export const useJokesStore = defineStore('useJokesStore', () => {
       await httpService.delete(`/${id}`);
       jokes.value = jokes.value.filter((jokes) => jokes.id !== id);
     } catch (error) {
-      console.error(error);
+      notifyError(`Couldn't remove the joke with id ${id}`, error);
+      throw error;
     }
   };
 
@@ -143,15 +157,20 @@ export const useJokesStore = defineStore('useJokesStore', () => {
     try {
       await httpService.put(`/${joke.id}`, joke);
     } catch (error) {
-      console.error(error);
+      notifyError(`Couldn't update rating for the joke with id ${joke.id}`, error);
+      throw error;
     }
   };
 
   const resetJokes = async (jokesNumber: number) => {
+    jokesUpdating.value = true;
     try {
       jokes.value = await httpService.post(`/reset/${jokesNumber}`, {});
     } catch (error) {
-      console.error(error);
+      notifyError(`Couldn't reset ${jokesNumber} jokes`, error);
+      throw error;
+    } finally {
+      jokesUpdating.value = false;
     }
   };
 
@@ -168,5 +187,6 @@ export const useJokesStore = defineStore('useJokesStore', () => {
     jokesNumber,
     updateJokeRating,
     resetJokes,
+    jokesUpdating,
   };
 });

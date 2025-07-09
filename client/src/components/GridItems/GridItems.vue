@@ -23,8 +23,8 @@ defineOptions({
 
 .fade-enter-active {
   transition:
-    opacity 0.4s ease,
-    transform 0.4s ease;
+    opacity 0.4s ease 3s,
+    transform 0.4s ease 3s;
   transition-delay: calc(var(--i, 0) * 80ms);
 }
 </style>
